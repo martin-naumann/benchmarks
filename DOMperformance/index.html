@@ -1,0 +1,191 @@
+<!doctype html>
+<html>
+  <body>
+    <div id="test"></div>
+
+    <script>
+      var innerHtmlTestFlat = function(numElems) {
+        var domString = "";
+        for(var i=0;i<numElems;i++) domString += "<div>TEST</div>";
+        document.getElementById("test").innerHTML = domString;
+      };
+
+      var documentFragmentTestFlat = function(numElems) {
+        var df = document.createDocumentFragment();
+        for(var i=0;i<numElems;i++) {
+          var child = document.createElement("div");
+          child.textContent = "TEST";
+          df.appendChild(child);
+        }
+        document.getElementById("test").appendChild(df);
+    };
+
+    var documentDirectTestFlat = function(numElems) {
+        var container = document.getElementById("test");
+        for(var i=0;i<numElems;i++) {
+          var child = document.createElement("div");
+          child.textContent = "TEST";
+          container.appendChild(child);
+        }
+    };
+        
+    var innerHtmlTestTree = function(numElems) {
+      var domString = "";
+      for(var i=0;i<numElems;i++) domString += "<div><ul><li>A</li><li>B</li><li>C</li></ul></div>";
+      document.getElementById("test").innerHTML = domString;
+    };
+
+    var documentDirectTestTree = function(numElems) {
+      var df = document.getElementById("test");
+      for(var i=0;i<numElems;i++) {
+        var child = document.createElement("div"),
+            ul    = document.createElement("ul");
+        for(var c=0;c<3;c++) {
+          var li = document.createElement("li");
+          li.textContent = c;
+          ul.appendChild(li);
+        }
+        child.appendChild(ul);
+        df.appendChild(child);
+      }
+    };
+        
+    var documentFragmentTestTree = function(numElems) {
+      var df = document.createDocumentFragment();
+      for(var i=0;i<numElems;i++) {
+        var child = document.createElement("div"),
+            ul    = document.createElement("ul");
+        for(var c=0;c<3;c++) {
+          var li = document.createElement("li");
+          li.textContent = c;
+          ul.appendChild(li);
+        }
+        child.appendChild(ul);
+        df.appendChild(child);
+      }
+        
+      document.getElementById("test").appendChild(df);
+    };
+        
+        
+    var dfBoosted = document.createDocumentFragment();
+    for(var i=0;i<10000;i++) {
+      var child = document.createElement("div"),
+          ul    = document.createElement("ul");
+      for(var c=0;c<3;c++) {
+        var li = document.createElement("li");
+        li.textContent = c;
+        ul.appendChild(li);
+      }
+      child.appendChild(ul);
+      dfBoosted.appendChild(child);
+    }
+        
+    var documentFragmentTestTreeBoosted = function(numElems) {
+      document.getElementById("test").appendChild(dfBoosted.cloneNode(true));
+    };
+
+    var domStringBoosted = "";
+    for(var i=0;i<10000;i++) domStringBoosted += "<div><ul><li>A</li><li>B</li><li>C</li></ul></div>";        
+    var innerHtmlTestTreeBoosted = function(numElems) {
+      document.getElementById("test").innerHTML = domStringBoosted;
+    };
+        
+
+///////////////////////
+//And the game is on!//
+///////////////////////
+
+    var NUM_ITERATIONS =    100,
+        NUM_ELEMS      =  10000;
+    
+    console.log = function() { alert(Array.prototype.join.call(arguments, ', ')); };
+        
+    var testContainer = document.getElementById('test'),
+        timeTaken     = 0;
+/**/
+//Flat tests
+    /**
+    for(var c=0;c<NUM_ITERATIONS;c++) {
+      testContainer.innerHTML = "";
+      var tStart = new Date().getTime();
+      innerHtmlTestFlat(NUM_ELEMS);
+      timeTaken += (new Date().getTime() - tStart);
+    }
+    console.log(NUM_ELEMS + ", innerHTML, flat: " + timeTaken / NUM_ITERATIONS);
+    
+    /**
+    timeTaken = 0;
+    for(var c=0;c<NUM_ITERATIONS;c++) {
+      testContainer.innerHTML = "";
+      var tStart = new Date().getTime();
+      documentFragmentTestFlat(NUM_ELEMS);
+      timeTaken += (new Date().getTime() - tStart);
+    }
+    console.log("DOM direct, flat: ", timeTaken / NUM_ITERATIONS);
+
+    /**/
+    timeTaken = 0;
+    for(var c=0;c<NUM_ITERATIONS;c++) {
+      testContainer.innerHTML = "";
+      var tStart = new Date().getTime();
+      documentDirectTestFlat(NUM_ELEMS);
+      timeTaken += (new Date().getTime() - tStart);
+    }
+        
+    console.log("DOMFragment, flat: ", timeTaken / NUM_ITERATIONS);
+        
+/**/
+//Subtree tests
+/**
+    timeTaken = 0;
+    for(var c=0;c<NUM_ITERATIONS;c++) {
+      testContainer.innerHTML = "";
+      var tStart = new Date().getTime();
+      innerHtmlTestTree(NUM_ELEMS);
+      timeTaken += (new Date().getTime() - tStart);
+    }
+    console.log(NUM_ELEMS, " - innerHTML, tree: ", timeTaken / NUM_ITERATIONS);   
+/**
+    timeTaken = 0;
+    for(var c=0;c<NUM_ITERATIONS;c++) {
+      testContainer.innerHTML = "";
+      var tStart = new Date().getTime();
+      documentDirectTestTree(NUM_ELEMS);
+      timeTaken += (new Date().getTime() - tStart);
+    }
+    console.log(NUM_ELEMS, " - DOM direct, tree: ", timeTaken / NUM_ITERATIONS);
+        
+/**
+    timeTaken = 0;
+    for(var c=0;c<NUM_ITERATIONS;c++) {
+      testContainer.innerHTML = "";
+      var tStart = new Date().getTime();
+      documentFragmentTestTree(NUM_ELEMS);
+      timeTaken += (new Date().getTime() - tStart);
+    }
+    console.log(NUM_ELEMS, " - DOMFragment, tree: ", timeTaken / NUM_ITERATIONS);
+    
+    
+/**
+    timeTaken = 0;
+    for(var c=0;c<NUM_ITERATIONS;c++) {
+      testContainer.innerHTML = "";
+      var tStart = new Date().getTime();
+      innerHtmlTestTreeBoosted(NUM_ELEMS);
+      timeTaken += (new Date().getTime() - tStart);
+    }
+    console.log(NUM_ELEMS, " - innerHTML, boosted, tree: ", timeTaken / NUM_ITERATIONS);
+/**
+    timeTaken = 0;
+    for(var c=0;c<NUM_ITERATIONS;c++) {
+      testContainer.innerHTML = "";
+      var tStart = new Date().getTime();
+      documentFragmentTestTreeBoosted(NUM_ELEMS);
+      timeTaken += (new Date().getTime() - tStart);
+    }
+    console.log(NUM_ELEMS, " - DOMFragment, boosted, tree: ", timeTaken / NUM_ITERATIONS);
+/**/
+    </script>
+  </body>
+</html>
